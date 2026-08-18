@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Planner</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  font-family:Inter,Arial,sans-serif;
+}
+
+:root{
+  --bg:#f4f7fb;
+  --card:#ffffff;
+  --text:#172033;
+  --muted:#748096;
+  --primary:#635bff;
+  --primary2:#8b5cf6;
+  --border:#e6e9f0;
+  --success:#16a34a;
+  --danger:#ef4444;
+  --shadow:0 10px 35px rgba(31,41,55,.08);
+}
+
+body.dark{
+  --bg:#10131b;
+  --card:#181c27;
+  --text:#f3f4f6;
+  --muted:#9ca3af;
+  --border:#2b3140;
+  --shadow:0 10px 35px rgba(0,0,0,.25);
+}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  transition:.25s;
+}
+
+header{
+  height:72px;
+  background:var(--card);
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 5%;
+  position:sticky;
+  top:0;
+  z-index:20;
+}
+
+.logo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:21px;
+  font-weight:800;
+}
+
+.logo span{
+  width:38px;
+  height:38px;
+  border-radius:12px;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,var(--primary),var(--primary2));
+  color:white;
+}
+
+.header-right{
+  display:flex;
+  align-items:center;
+  gap:18px;
+}
+
+#clock{
+  font-weight:700;
+}
+
+.icon-btn{
+  border:1px solid var(--border);
+  background:var(--card);
+  color:var(--text);
+  width:40px;
+  height:40px;
+  border-radius:12px;
+  cursor:pointer;
+  font-size:18px;
+}
+
+.container{
+  max-width:1250px;
+  margin:30px auto;
+  padding:0 20px;
+}
+
+.welcome{
+  margin-bottom:25px;
+}
+
+.welcome h1{
+  font-size:30px;
+  margin-bottom:7px;
+}
+
+.welcome p{
+  color:var(--muted);
+}
+
+.reminder-bar{
+  background:linear-gradient(135deg,var(--primary),var(--primary2));
+  color:white;
+  border-radius:18px;
+  padding:18px 22px;
+  margin-bottom:25px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  box-shadow:var(--shadow);
+}
+
+.reminder-left{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.reminder-icon{
+  font-size:25px;
+}
+
+.reminder-title{
+  font-size:13px;
+  opacity:.8;
+}
+
+.reminder-text{
+  font-size:16px;
+  font-weight:700;
+  margin-top:3px;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+  margin-bottom:25px;
+}
+
+.stat{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:20px;
+  box-shadow:var(--shadow);
+}
+
+.stat-top{
+  display:flex;
+  justify-content:space-between;
+  color:var(--muted);
+  font-size:14px;
+}
+
+.stat-number{
+  font-size:30px;
+  font-weight:800;
+  margin-top:10px;
+}
+
+.main-grid{
+  display:grid;
+  grid-template-columns:1.4fr .9fr;
+  gap:22px;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:22px;
+  box-shadow:var(--shadow);
+}
+
+.card-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:18px;
+}
+
+.card-title h2{
+  font-size:19px;
+}
+
+.form{
+  display:grid;
+  grid-template-columns:1fr 130px auto;
+  gap:10px;
+  margin-bottom:20px;
+}
+
+input,textarea{
+  width:100%;
+  border:1px solid var(--border);
+  background:var(--bg);
+  color:var(--text);
+  border-radius:12px;
+  padding:12px 14px;
+  outline:none;
+}
+
+input:focus,textarea:focus{
+  border-color:var(--primary);
+}
+
+button{
+  border:0;
+}
+
+.add-btn{
+  background:linear-gradient(135deg,var(--primary),var(--primary2));
+  color:white;
+  padding:0 20px;
+  border-radius:12px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.task{
+  display:flex;
+  align-items:center;
+  gap:13px;
+  padding:15px 4px;
+  border-bottom:1px solid var(--border);
+}
+
+.task:last-child{
+  border-bottom:0;
+}
+
+.check{
+  width:22px;
+  height:22px;
+  border-radius:7px;
+  border:2px solid var(--border);
+  cursor:pointer;
+  flex-shrink:0;
+  display:grid;
+  place-items:center;
+}
+
+.task.done .check{
+  background:var(--success);
+  border-color:var(--success);
+  color:white;
+}
+
+.task-info{
+  flex:1;
+}
+
+.task-name{
+  font-weight:700;
+}
+
+.task.done .task-name{
+  text-decoration:line-through;
+  opacity:.5;
+}
+
+.task-time{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:4px;
+}
+
+.delete{
+  color:var(--danger);
+  cursor:pointer;
+  font-size:17px;
+}
+
+.calendar-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:15px;
+}
+
+.calendar-header button{
+  background:var(--bg);
+  color:var(--text);
+  width:34px;
+  height:34px;
+  border-radius:9px;
+  cursor:pointer;
+}
+
+.calendar-week,.calendar-days{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:6px;
+  text-align:center;
+}
+
+.calendar-week div{
+  color:var(--muted);
+  font-size:12px;
+  font-weight:700;
+  padding:8px 0;
+}
+
+.day{
+  min-height:38px;
+  display:grid;
+  place-items:center;
+  border-radius:10px;
+  cursor:pointer;
+  position:relative;
+}
+
+.day:hover{
+  background:var(--bg);
+}
+
+.day.today{
+  background:var(--primary);
+  color:white;
+  font-weight:800;
+}
+
+.day.selected{
+  outline:2px solid var(--primary);
+}
+
+.dot{
+  position:absolute;
+  bottom:4px;
+  width:4px;
+  height:4px;
+  background:var(--primary);
+  border-radius:50%;
+}
+
+.notes{
+  margin-top:22px;
+}
+
+.notes textarea{
+  min-height:120px;
+  resize:vertical;
+  margin-top:12px;
+}
+
+.save-note{
+  margin-top:10px;
+  padding:10px 18px;
+  border-radius:10px;
+  background:var(--primary);
+  color:white;
+  cursor:pointer;
+  font-weight:700;
+}
+
+.empty{
+  color:var(--muted);
+  text-align:center;
+  padding:25px 5px;
+}
+
+@media(max-width:850px){
+  .main-grid{
+    grid-template-columns:1fr;
+  }
+
+  .stats{
+    grid-template-columns:1fr;
+  }
+
+  .form{
+    grid-template-columns:1fr 120px;
+  }
+
+  .add-btn{
+    grid-column:1/-1;
+    padding:12px;
+  }
+}
+
+@media(max-width:600px){
+  header{
+    padding:0 15px;
+  }
+
+  #clock{
+    display:none;
+  }
+
+  .container{
+    padding:0 13px;
+    margin-top:20px;
+  }
+
+  .welcome h1{
+    font-size:25px;
+  }
+
+  .reminder-bar{
+    padding:15px;
+  }
+
+  .card{
+    padding:16px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">
+    <span>✓</span>
+    Daily Planner
+  </div>
+
+  <div class="header-right">
+    <div id="clock">00:00:00</div>
+    <button class="icon-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="welcome">
+    <h1>Good Morning 👋</h1>
+    <p id="todayText"></p>
+  </div>
+
+  <div class="reminder-bar">
+    <div class="reminder-left">
+      <div class="reminder-icon">🔔</div>
+      <div>
+        <div class="reminder-title">NEXT REMINDER</div>
+        <div class="reminder-text" id="nextReminder">
+          No upcoming reminder
+        </div>
+      </div>
+    </div>
+    <div id="reminderTime"></div>
+  </div>
+
+  <div class="stats">
+
+    <div class="stat">
+      <div class="stat-top">
+        <span>Today's Tasks</span>
+        <span>📋</span>
+      </div>
+      <div class="stat-number" id="totalTasks">0</div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-top">
+        <span>Completed</span>
+        <span>✅</span>
+      </div>
+      <div class="stat-number" id="completedTasks">0</div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-top">
+        <span>Progress</span>
+        <span>📊</span>
+      </div>
+      <div class="stat-number" id="progress">0%</div>
+    </div>
+
+  </div>
+
+  <div class="main-grid">
+
+    <div>
+
+      <div class="card">
+
+        <div class="card-title">
+          <h2>📋 Today's Schedule</h2>
+          <span id="selectedDateLabel"></span>
+        </div>
+
+        <div class="form">
+          <input id="taskInput" type="text" placeholder="What do you need to do?">
+          <input id="timeInput" type="time">
+          <button class="add-btn" onclick="addTask()">+ Add Work</button>
+        </div>
+
+        <div id="taskList"></div>
+
+      </div>
+
+      <div class="card notes">
+
+        <div class="card-title">
+          <h2>📝 Daily Notes</h2>
+        </div>
+
+        <textarea id="notesInput"
+          placeholder="Write anything about your day..."></textarea>
+
+        <button class="save-note" onclick="saveNotes()">
+          Save Notes
+        </button>
+
+      </div>
+
+    </div>
+
+    <div class="card">
+
+      <div class="calendar-header">
+        <button onclick="changeMonth(-1)">‹</button>
+        <h2 id="monthTitle"></h2>
+        <button onclick="changeMonth(1)">›</button>
+      </div>
+
+      <div class="calendar-week">
+        <div>MON</div>
+        <div>TUE</div>
+        <div>WED</div>
+        <div>THU</div>
+        <div>FRI</div>
+        <div>SAT</div>
+        <div>SUN</div>
+      </div>
+
+      <div class="calendar-days" id="calendar"></div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+let data = JSON.parse(localStorage.getItem("dailyPlannerData")) || {
+  tasks:{},
+  notes:{}
+};
+
+let selectedDate = getDateKey(new Date());
+let calendarDate = new Date();
+
+function getDateKey(date){
+  return date.toISOString().split("T")[0];
+}
+
+function formatDate(date){
+  return date.toLocaleDateString("en-IN",{
+    weekday:"long",
+    day:"numeric",
+    month:"long",
+    year:"numeric"
+  });
+}
+
+function loadData(){
+  renderTasks();
+  renderCalendar();
+  loadNotes();
+  updateStats();
+  updateReminder();
+}
+
+function addTask(){
+
+  const input=document.getElementById("taskInput");
+  const time=document.getElementById("timeInput");
+
+  const text=input.value.trim();
+
+  if(!text){
+    alert("Please enter your work.");
+    return;
+  }
+
+  if(!data.tasks[selectedDate]){
+    data.tasks[selectedDate]=[];
+  }
+
+  data.tasks[selectedDate].push({
+    id:Date.now(),
+    text:text,
+    time:time.value || "",
+    done:false
+  });
+
+  saveData();
+
+  input.value="";
+  time.value="";
+
+  loadData();
+}
+
+function toggleTask(id){
+
+  if(!data.tasks[selectedDate]) return;
+
+  const task=data.tasks[selectedDate].find(t=>t.id===id);
+
+  if(task){
+    task.done=!task.done;
+  }
+
+  saveData();
+  loadData();
+}
+
+function deleteTask(id){
+
+  if(!confirm("Delete this work?")) return;
+
+  data.tasks[selectedDate]=
+    data.tasks[selectedDate].filter(t=>t.id!==id);
+
+  saveData();
+  loadData();
+}
+
+function renderTasks(){
+
+  const list=document.getElementById("taskList");
+  const tasks=data.tasks[selectedDate] || [];
+
+  document.getElementById("selectedDateLabel").textContent=
+    new Date(selectedDate+"T00:00:00").toLocaleDateString("en-IN",{
+      day:"numeric",
+      month:"short"
+    });
+
+  if(tasks.length===0){
+    list.innerHTML=
+      `<div class="empty">No work added for this date.</div>`;
+    return;
+  }
+
+  list.innerHTML=tasks.map(task=>`
+
+    <div class="task ${task.done?"done":""}">
+
+      <div class="check"
+           onclick="toggleTask(${task.id})">
+        ${task.done?"✓":""}
+      </div>
+
+      <div class="task-info">
+
+        <div class="task-name">
+          ${escapeHTML(task.text)}
+        </div>
+
+        ${task.time ?
+          `<div class="task-time">⏰ ${formatTime(task.time)}</div>`
+          :""}
+
+      </div>
+
+      <div class="delete"
+           onclick="deleteTask(${task.id})">
+        🗑️
+      </div>
+
+    </div>
+
+  `).join("");
+}
+
+function escapeHTML(text){
+  const div=document.createElement("div");
+  div.textContent=text;
+  return div.innerHTML;
+}
+
+function formatTime(time){
+
+  if(!time) return "";
+
+  let [h,m]=time.split(":");
+  h=parseInt(h);
+
+  let ampm=h>=12?"PM":"AM";
+  h=h%12 || 12;
+
+  return `${h}:${m} ${ampm}`;
+}
+
+function updateStats(){
+
+  const tasks=data.tasks[selectedDate] || [];
+
+  const completed=tasks.filter(t=>t.done).length;
+
+  const percentage=tasks.length
+    ? Math.round((completed/tasks.length)*100)
+    :0;
+
+  document.getElementById("totalTasks").textContent=tasks.length;
+  document.getElementById("completedTasks").textContent=completed;
+  document.getElementById("progress").textContent=percentage+"%";
+}
+
+function renderCalendar(){
+
+  const calendar=document.getElementById("calendar");
+
+  const year=calendarDate.getFullYear();
+  const month=calendarDate.getMonth();
+
+  document.getElementById("monthTitle").textContent=
+    calendarDate.toLocaleDateString("en-IN",{
+      month:"long",
+      year:"numeric"
+    });
+
+  const firstDay=new Date(year,month,1);
+  let start=firstDay.getDay();
+
+  start=start===0?6:start-1;
+
+  const daysInMonth=new Date(year,month+1,0).getDate();
+
+  let html="";
+
+  for(let i=0;i<start;i++){
+    html+="<div></div>";
+  }
+
+  for(let day=1;day<=daysInMonth;day++){
+
+    const dateKey=
+      `${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+
+    const isToday=dateKey===getDateKey(new Date());
+    const isSelected=dateKey===selectedDate;
+
+    const hasTasks=
+      data.tasks[dateKey] &&
+      data.tasks[dateKey].length>0;
+
+    html+=`
+
+      <div class="day
+        ${isToday?"today":""}
+        ${isSelected?"selected":""}"
+        onclick="selectDate('${dateKey}')">
+
+        ${day}
+
+        ${hasTasks?'<span class="dot"></span>':""}
+
+      </div>
+
+    `;
+  }
+
+  calendar.innerHTML=html;
+}
+
+function selectDate(date){
+
+  selectedDate=date;
+
+  calendarDate=new Date(date+"T00:00:00");
+
+  loadData();
+}
+
+function changeMonth(amount){
+
+  calendarDate.setMonth(calendarDate.getMonth()+amount);
+
+  renderCalendar();
+}
+
+function saveNotes(){
+
+  data.notes[selectedDate]=
+    document.getElementById("notesInput").value;
+
+  saveData();
+
+  alert("Notes saved successfully ✅");
+}
+
+function loadNotes(){
+
+  document.getElementById("notesInput").value=
+    data.notes[selectedDate] || "";
+}
+
+function saveData(){
+
+  localStorage.setItem(
+    "dailyPlannerData",
+    JSON.stringify(data)
+  );
+}
+
+function updateClock(){
+
+  const now=new Date();
+
+  document.getElementById("clock").textContent=
+    now.toLocaleTimeString("en-IN");
+
+  document.getElementById("todayText").textContent=
+    formatDate(now);
+}
+
+function updateReminder(){
+
+  const now=new Date();
+
+  const today=getDateKey(now);
+
+  const tasks=data.tasks[today] || [];
+
+  const upcoming=tasks
+    .filter(t=>t.time && !t.done)
+    .filter(t=>{
+      const [h,m]=t.time.split(":");
+      const taskDate=new Date();
+      taskDate.setHours(h,m,0,0);
+      return taskDate>=now;
+    })
+    .sort((a,b)=>a.time.localeCompare(b.time))[0];
+
+  if(!upcoming){
+
+    document.getElementById("nextReminder").textContent=
+      "No upcoming reminder";
+
+    document.getElementById("reminderTime").textContent="";
+
+    return;
+  }
+
+  document.getElementById("nextReminder").textContent=
+    upcoming.text;
+
+  document.getElementById("reminderTime").textContent=
+    formatTime(upcoming.time);
+}
+
+function toggleTheme(){
+
+  document.body.classList.toggle("dark");
+
+  const dark=document.body.classList.contains("dark");
+
+  localStorage.setItem("plannerTheme",dark?"dark":"light");
+
+  document.getElementById("themeBtn").textContent=
+    dark?"☀️":"🌙";
+}
+
+function loadTheme(){
+
+  if(localStorage.getItem("plannerTheme")==="dark"){
+    document.body.classList.add("dark");
+    document.getElementById("themeBtn").textContent="☀️";
+  }
+}
+
+loadTheme();
+loadData();
+updateClock();
+updateReminder();
+
+setInterval(updateClock,1000);
+setInterval(updateReminder,30000);
+
+</script>
+
+</body>
+</html>
